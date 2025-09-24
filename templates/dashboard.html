@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-12">
+    <div class="card p-4">
+      <h3 class="mb-2">Вітаємо, {{ user.username }}!</h3>
+      <p class="text-secondary mb-0">Статистика користувачів за ролями та швидкі дії.</p>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h5 class="mb-3">Кількість користувачів за ролями</h5>
+      <canvas id="rolesChart" height="200"></canvas>
+      <p class="text-secondary small mt-3 mb-0">
+        Джерело: <code>users</code>.
+      </p>
+    </div>
+  </div>
+
+  {% if user.role == 'admin' %}
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h5>Адмін</h5>
+      <p class="text-secondary">Призначення ролей та перегляд аудиту.</p>
+      <a class="btn btn-outline-primary me-2" href="{{ url_for('users_page') }}">Керувати ролями</a>
+      <a class="btn btn-outline-secondary" href="{{ url_for('audit_list') }}">Журнал аудиту</a>
+    </div>
+  </div>
+  {% elif user.role == 'moderator' %}
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h5>Модерація</h5>
+      <p class="text-secondary">Перегляд журналу аудиту.</p>
+      <a class="btn btn-outline-secondary" href="{{ url_for('audit_list') }}">Журнал аудиту</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  const labels = {{ chart_labels|tojson }};
+  const counts = {{ chart_counts|tojson }};
+  const ctx = document.getElementById('rolesChart');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label: 'Користувачів', data: counts, borderWidth: 1 }]
+    },
+    options: { scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+</script>
+{% endblock %}

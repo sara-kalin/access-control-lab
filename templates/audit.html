@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card p-4">
+  <h3 class="mb-3">Журнал аудиту</h3>
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
+      <thead>
+        <tr>
+          <th>Час (UTC)</th>
+          <th>Користувач</th>
+          <th>Подія</th>
+          <th>Опис</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td class="text-nowrap">{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+          <td>{{ log.actor_username or (log.actor_id if log.actor_id else '—') }}</td>
+          <td><span class="badge text-bg-secondary">{{ log.event }}</span></td>
+          <td class="text-break">{{ log.details }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="text-secondary small mb-0">Показано останні 500 подій.</p>
+</div>
+{% endblock %}

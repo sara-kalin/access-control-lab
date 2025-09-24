@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: ac_pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ac_user
+      POSTGRES_PASSWORD: ac_password
+      POSTGRES_DB: ac_db
+    # ⚠️ Якщо на хості вже працює Postgres на 5432 — або вимкни його, або зміни мапінг напр. "5433:5432"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ac_user -d ac_db -h 127.0.0.1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build: .
+    container_name: ac_web
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SECRET_KEY: please_change_me
+      # ВАЖЛИВО: доступ до БД за ім'ям сервісу "db", і ті самі креденшали, що в POSTGRES_*
+      DATABASE_URL: postgresql+psycopg://ac_user:ac_password@db:5432/ac_db
+      FLASK_ENV: production
+    ports:
+      - "8000:8000"
+    # Скрипт чекає: host port ...команда...
+    command: ["/app/wait-for-db.sh", "db", "5432", "gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "app.app:app"]
+    # Якщо хочеш live-reload у деві — можеш додати мапінг коду:
+    # volumes:
+    #   - .:/app
+
+  # (опціонально) веб-клієнт до БД
+  adminer:
+    image: adminer
+    container_name: ac_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

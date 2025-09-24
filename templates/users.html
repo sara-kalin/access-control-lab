@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card p-4">
+  <h3 class="mb-3">Користувачі (лише для admin)</h3>
+
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Поточна роль</th>
+          <th style="width:420px;">Дії</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.username }}</td>
+          <td>
+            <span class="badge text-bg-secondary">{{ u.role }}</span>
+          </td>
+          <td>
+            <form class="d-inline-flex gap-2" method="post" action="{{ url_for('assign_role') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="user_id" value="{{ u.id }}">
+              <select class="form-select" name="role" required>
+                <option value="admin"     {% if u.role=='admin' %}selected{% endif %}>admin</option>
+                <option value="moderator" {% if u.role=='moderator' %}selected{% endif %}>moderator</option>
+                <option value="user"      {% if u.role=='user' %}selected{% endif %}>user</option>
+              </select>
+              <button class="btn btn-sm btn-primary">Зберегти</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="text-secondary small mb-0">
+    Усі дії логуються у <a href="{{ url_for('audit_list') }}">журналі аудиту</a>.
+  </p>
+</div>
+{% endblock %}

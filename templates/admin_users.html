@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card p-4">
+  <h3 class="mb-3">Адмін: керування ролями</h3>
+
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Поточні ролі</th>
+          <th style="width: 420px;">Дії</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.username }}</td>
+          <td>
+            {% if u.roles %}
+              {% for r in u.roles %}<span class="badge text-bg-secondary me-1">{{ r.name }}</span>{% endfor %}
+            {% else %}
+              <span class="text-muted">нема</span>
+            {% endif %}
+          </td>
+          <td>
+            <!-- Додати роль -->
+            <form class="d-inline-flex gap-2 mb-2" method="post" action="{{ url_for('assign_role') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="user_id" value="{{ u.id }}">
+              <select class="form-select" name="role" required>
+                {% for r in roles %}<option value="{{ r.name }}">{{ r.name }}</option>{% endfor %}
+              </select>
+              <button class="btn btn-sm btn-primary">Додати роль</button>
+            </form>
+            <!-- Забрати роль -->
+            <form class="d-inline-flex gap-2" method="post" action="{{ url_for('remove_role') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="user_id" value="{{ u.id }}">
+              <select class="form-select" name="role" required>
+                {% for r in roles %}<option value="{{ r.name }}">{{ r.name }}</option>{% endfor %}
+              </select>
+              <button class="btn btn-sm btn-outline-danger">Забрати роль</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="text-secondary small mb-0">
+    Дії логуються у <a href="{{ url_for('audit_list') }}">журналі аудиту</a>.
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card p-4">
+      <h3 class="mb-3">Реєстрація</h3>
+      <form method="post" action="{{ url_for('register_post') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input name="username" class="form-control" minlength="3" required>
+          <div class="form-text">Мінімум 3 символи.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Пароль</label>
+          <input type="password" name="password" class="form-control" minlength="8" required>
+          <div class="form-text">Мінімум 8 символів.</div>
+        </div>
+        <button class="btn btn-success w-100">Створити акаунт</button>
+      </form>
+      <div class="text-center mt-3">
+        Вже маєте акаунт? <a href="{{ url_for('login') }}">Увійти</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
